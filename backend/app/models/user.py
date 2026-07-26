@@ -24,3 +24,8 @@ class User(Base):
         nullable=False,
         index=True,
     )
+
+    hashed_password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
