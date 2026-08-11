@@ -1,8 +1,15 @@
 from app.database.base import Base
 from app.database.database import engine
 
-# Import all models so SQLAlchemy knows about them
-from app.models import User
+# Import every model so SQLAlchemy registers them
+from app.models import (
+    User,
+    Task,
+    Note,
+    Category,
+    ChatSession,
+    ChatMessage,
+)
 
 Base.metadata.create_all(bind=engine)
 

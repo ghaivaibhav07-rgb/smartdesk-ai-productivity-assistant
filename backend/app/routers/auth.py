@@ -1,10 +1,14 @@
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.crud.auth import login_user
+from app.config.settings import settings
+from app.core.security import create_access_token
+from app.crud.auth import authenticate_user
 from app.database.session import get_db
-from app.schemas.auth import LoginRequest, Token
-
+from app.schemas.token import Token
 
 router = APIRouter(
     prefix="/login",
@@ -17,22 +21,31 @@ router = APIRouter(
     response_model=Token,
 )
 def login(
-    request: LoginRequest,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    token = login_user(
+    user = authenticate_user(
         db,
-        request.email,
-        request.password,
+        form_data.username,   # username = email
+        form_data.password,
     )
 
-    if token is None:
+    if user is None:
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password",
         )
 
+    access_token = create_access_token(
+        data={
+            "sub": user.email,
+        },
+        expires_delta=timedelta(
+            minutes=settings.access_token_expire_minutes,
+        ),
+    )
+
     return {
-        "access_token": token,
+        "access_token": access_token,
         "token_type": "bearer",
     }

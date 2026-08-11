@@ -1,22 +1,17 @@
 from sqlalchemy.orm import Session
 
-from app.core.security import (
-    verify_password,
-    create_access_token,
-)
-
-from app.models.user import User
+from app.core.security import verify_password
+from app.crud.user import get_user_by_email
 
 
-def login_user(
+def authenticate_user(
     db: Session,
     email: str,
     password: str,
 ):
-    user = (
-        db.query(User)
-        .filter(User.email == email)
-        .first()
+    user = get_user_by_email(
+        db,
+        email,
     )
 
     if user is None:
@@ -28,10 +23,4 @@ def login_user(
     ):
         return None
 
-    token = create_access_token(
-        {
-            "sub": user.email,
-        }
-    )
-
-    return token
+    return user
