@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,7 +23,6 @@ from app.routers.email import router as email_router
 from app.routers.resume import router as resume_router
 
 
-
 # Create missing database tables
 Base.metadata.create_all(bind=engine)
 
@@ -33,10 +31,14 @@ app = FastAPI(
     title="SmartDesk API",
     version="1.0.0",
 )
+
+
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://smartdesk-frontend-ye8j.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -44,6 +46,7 @@ app.add_middleware(
 )
 
 
+# Register API routers
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(task_router)
@@ -60,4 +63,3 @@ def root():
     return {
         "message": "Welcome to SmartDesk API"
     }
-
