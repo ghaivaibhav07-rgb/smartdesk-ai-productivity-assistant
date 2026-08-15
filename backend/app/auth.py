@@ -1,21 +1,52 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
-from jose import jwt
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 
 from app.config.settings import settings
+from app.core.security import create_access_token
+from app.crud.auth import authenticate_user
+from app.database.session import get_db
+from app.schemas.token import Token
 
 
-def create_access_token(data: dict):
-    to_encode = data.copy()
+router = APIRouter(
+    prefix="/login",
+    tags=["Authentication"],
+)
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.access_token_expire_minutes
+
+@router.post(
+    "/",
+    response_model=Token,
+)
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    user = authenticate_user(
+        db,
+        form_data.username,  # username = email
+        form_data.password,
     )
 
-    to_encode.update({"exp": expire})
+    if user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
 
-    return jwt.encode(
-        to_encode,
-        settings.secret_key,
-        algorithm=settings.algorithm,
+    access_token = create_access_token(
+        data={
+            "sub": user.email,
+        },
+        expires_delta=timedelta(
+            minutes=settings.access_token_expire_minutes,
+        ),
     )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }

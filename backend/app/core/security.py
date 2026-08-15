@@ -1,74 +1,58 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 
 from app.config.settings import settings
 
-# Password hashing
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-)
+
+password_hash = PasswordHash.recommended()
 
 
-# Hash password
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-# Alias for compatibility
 def get_password_hash(password: str) -> str:
-    return hash_password(password)
+    return password_hash.hash(password)
 
 
-# Verify password
 def verify_password(
     plain_password: str,
     hashed_password: str,
 ) -> bool:
-    return pwd_context.verify(
+    return password_hash.verify(
         plain_password,
         hashed_password,
     )
 
 
-# Create JWT Access Token
 def create_access_token(
     data: dict,
     expires_delta: timedelta | None = None,
-):
+) -> str:
     to_encode = data.copy()
 
     if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(
+        expire = datetime.now(timezone.utc) + timedelta(
             minutes=settings.access_token_expire_minutes
         )
 
-    to_encode.update(
-        {
-            "exp": expire,
-        }
-    )
+    to_encode.update({"exp": expire})
 
     return jwt.encode(
         to_encode,
-        settings.secret_key,
-        algorithm=settings.algorithm,
+        settings.jwt_secret,
+        algorithm=settings.jwt_algorithm,
     )
 
 
-# Decode JWT
-def decode_access_token(token: str):
+def decode_access_token(
+    token: str,
+) -> dict | None:
     try:
-        payload = jwt.decode(
+        return jwt.decode(
             token,
-            settings.secret_key,
-            algorithms=[settings.algorithm],
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
         )
-        return payload
-
     except JWTError:
         return None

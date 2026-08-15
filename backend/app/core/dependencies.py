@@ -7,6 +7,7 @@ from app.config.settings import settings
 from app.crud.user import get_user_by_email
 from app.database.session import get_db
 
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/login/",
 )
@@ -27,8 +28,8 @@ def get_current_user(
     try:
         payload = jwt.decode(
             token,
-            settings.secret_key,
-            algorithms=[settings.algorithm],
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
         )
 
         email = payload.get("sub")

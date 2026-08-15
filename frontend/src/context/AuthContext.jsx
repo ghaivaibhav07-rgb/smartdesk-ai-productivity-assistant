@@ -43,42 +43,42 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const formData = new URLSearchParams();
+  const formData = new URLSearchParams();
 
-    formData.append("username", email);
-    formData.append("password", password);
+  formData.append("username", email);
+  formData.append("password", password);
 
-    const response = await api.post("/login/", formData, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
+  const response = await api.post("/login/", formData, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
 
-    const accessToken = response.data.access_token;
+  const accessToken = response.data.access_token;
 
-    localStorage.setItem("access_token", accessToken);
-    setToken(accessToken);
+  localStorage.setItem("access_token", accessToken);
+  setToken(accessToken);
 
-    const userResponse = await api.get("/users/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+  const userResponse = await api.get("/users/me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
-    setUser(userResponse.data);
+  setUser(userResponse.data);
 
-    return userResponse.data;
-  };
+  return userResponse.data;
+};
 
-  const register = async (name, email, password) => {
-    const response = await api.post("/users/", {
-      name,
-      email,
-      password,
-    });
+const register = async (name, email, password) => {
+  const response = await api.post("/users/", {
+    name,
+    email,
+    password,
+  });
 
-    return response.data;
-  };
+  return response.data;
+};
 
   const logout = () => {
     localStorage.removeItem("access_token");

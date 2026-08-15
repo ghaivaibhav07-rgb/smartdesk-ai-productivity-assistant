@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-
-from app.dependencies import get_current_user
+from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.services.resume_ai import process_resume_ai
 

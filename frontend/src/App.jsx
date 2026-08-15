@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import Notes from "./pages/Notes";
@@ -37,10 +38,15 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Login */}
+        {/* Authentication */}
         <Route
           path="/login"
           element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
         />
 
         {/* Protected Application */}
@@ -51,43 +57,36 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Dashboard */}
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
 
-          {/* Tasks */}
           <Route
             path="/tasks"
             element={<Tasks />}
           />
 
-          {/* Notes */}
           <Route
             path="/notes"
             element={<Notes />}
           />
 
-          {/* AI Chat */}
           <Route
             path="/chat"
             element={<Chat />}
           />
 
-          {/* PDF Summarizer */}
           <Route
             path="/pdf"
             element={<PDF />}
           />
 
-          {/* AI Email */}
           <Route
             path="/email"
             element={<Email />}
           />
 
-          {/* AI Resume */}
           <Route
             path="/resume"
             element={<Resume />}
